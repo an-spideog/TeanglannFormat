@@ -10,8 +10,9 @@ regexs.set("numbers", new RegExp('( )([\d]\.)'))*/
 document.span.diclick.color = "green"*/
 //document.getElementsByClassName("fgb title")[0].style.backgroundColor = "green"
 //document.getElementsByClassName("fgb title")[0].innerHTML = "glac <br>"
-var word = document.getElementsByClassName("fgb title")[0].innerHTML.replace(/<.*>(.*)<.*>/, '$1')
+var word = document.getElementsByClassName("fgb title")[0].innerHTML.replace(/(\w*).*/, '$1')
 
+console.log(word)
 var bolds = document.getElementsByClassName("fgb b clickable")  //"span" is not a class
 for (let bold of bolds) {
   var currentBold = bold.innerHTML
@@ -23,14 +24,14 @@ for (let bold of bolds) {
 var regulars = document.getElementsByClassName("fgb r clickable")
 for (let regular of regulars) {
   var currentRegular = regular.innerHTML
-  currentRegular = currentRegular.replace(/>\. <\/span>/, '>. <br> ')
+  currentRegular = currentRegular.replace(/>\. *<\/span>/, '>. <br> </span>')
   regular.innerHTML = currentRegular
 }
 
 var italics = document.getElementsByClassName("fgb i clickable")
 for (let italic of italics) {
   var currentItalic = italic.innerHTML
-  currentItalic = currentItalic.replace(/(<span.*>[A-Z|Á|É|Í|Ó|Ú])/, '<span> • </span> $1')
+  currentItalic = currentItalic.replace(/(<span.*>[A-Z|Á|É|Í|Ó|Ú])/, '<span style="margin-left: 40px"> • </span> $1')
   currentItalic = currentItalic.replace("~", word)
   italic.innerHTML = currentItalic
 }
