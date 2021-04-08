@@ -10,15 +10,15 @@ regexs.set("numbers", new RegExp('( )([\d]\.)'))*/
 document.span.diclick.color = "green"*/
 //document.getElementsByClassName("fgb title")[0].style.backgroundColor = "green"
 //document.getElementsByClassName("fgb title")[0].innerHTML = "glac <br>"
-var word = document.getElementsByClassName("fgb title")[0].innerHTML.replace(/(\w*).*/, '$1')
+var word = document.getElementsByClassName("fgb title")[0].innerHTML.replace(/([\w|á|é|í|ú|ó|Á|É|Í|Ú|Ó]*).*/, '$1')
 
 console.log(word)
 var bolds = document.getElementsByClassName("fgb b clickable")  //"span" is not a class
 for (let bold of bolds) {
   var currentBold = bold.innerHTML
   currentBold = currentBold.replace(/([\d]*\. )/, '<br> $1')
-  currentBold = currentBold.replace("~", word)
-  currentBold = currentBold.replace(/(<span.*>[A-Z|Á|É|Í|Ó|Ú])/, '<span> • </span> $1')
+  currentBold = currentBold.replace(/~/g, word)
+  currentBold = currentBold.replace(/(<span.*>[a-z|A-Z|á|é|í|ú|ó|Á|É|Í|Ú|Ó|~])/, '<span> • </span> $1')
   bold.innerHTML = currentBold
 }
 var regulars = document.getElementsByClassName("fgb r clickable")
