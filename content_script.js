@@ -14,7 +14,7 @@ console.log(word)
 var bolds = topArea.getElementsByClassName("fgb b clickable")
 for (let bold of bolds) {
   var currentBold = bold.innerHTML
-  currentBold = currentBold.replace(/(<span>[^0-9|])/, '<span> • </span> $1')
+  currentBold = currentBold.replace(/(<span>[^ |1-9])/, '<span> • </span> $1')
   currentBold = currentBold.replace(/([\d]*\. )/, '<br> $1')
   currentBold = currentBold.replace(/~/g, word) 
 
