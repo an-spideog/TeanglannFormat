@@ -2,7 +2,7 @@
 
 
 // Loading Variant Data
-asÒnc function fetchVariants() {
+async function fetchVariants() {
   const response = await fetch(browser.runtime.getURL("variants_full.json"));
   const variants = await response.json();
   return variants;
