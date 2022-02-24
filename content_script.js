@@ -10,16 +10,28 @@ async function fetchVariants() {
 
 fetchVariants().then(variants => {
 
-  // FGB
   var topArea = document.getElementsByClassName("dir obverse exacts")[0]
   var word = ""
   if (document.getElementsByClassName("eid current").length > 0) {
      word = document.getElementsByClassName("eid src unclickable")[0].innerHTML
+  } else if (document.getElementsByClassName("fgb entry").length > 0) {
+     word = document.getElementsByClassName("fgb title")[0].textContent.trim().replace(/(.*),/g, '$1')
   } else {
-     word = document.getElementsByClassName("fgb title")[0].innerHTML.replace(/([\w|á|é|í|ú|ó|Á|É|Í|Ú|Ó]*).*/, '$1')
+    word = document.getElementsByClassName("fb headword clickable")[0].textContent.trim()
   }
+  // Special Exceptions:
+  if (word == "i gceann" || word == "ar ceann" || word == "de cheann" || word == "go ceann" || word == "um cheann") {
+    word = "ceann"
+  } else if (word == "le haghaidh" || word == "in aghaidh" || word == "ar aghaidh") {
+    word = "aghaidh"
+  } else if (word == "in airde") {
+    word = "airde"
+  } 
 
-  // Variants 
+
+  // FGB
+
+  /// Variants
   var entries = topArea.getElementsByClassName("fgb entry")
   for (let entry of entries) {
     if (entry.getElementsByClassName("fgb title")[0].nextElementSibling.className == "fgb x") {
@@ -39,10 +51,7 @@ fetchVariants().then(variants => {
   
   }
 
-  // Exact Matches
-  
 
-  // console.log(word)
   var bolds = topArea.getElementsByClassName("fgb b clickable")
   for (let bold of bolds) {
     var currentBold = bold.innerHTML
@@ -67,26 +76,68 @@ fetchVariants().then(variants => {
     italic.innerHTML = currentItalic
   }
 
-  // Phrases in FGB
-  var bottomArea = document.getElementsByClassName("dir obverse")[2]
-  var examples = bottomArea.getElementsByClassName("ex")
-  for (let example of examples) {
-    word = example.getElementsByTagName("a")[0].innerHTML.replace(/([^<]*) <span.*/, '$1')
-    // console.log(word)
-    example.innerHTML = example.innerHTML.replace(/~/, word)
-    
-
+  /// Phrases in FGB
+  if (document.getElementsByClassName("dir obverse").length > 2) {
+    var bottomArea = document.getElementsByClassName("dir obverse")[2]
+    var examples = bottomArea.getElementsByClassName("ex")
+    for (let example of examples) {
+      word = example.getElementsByTagName("a")[0].innerHTML.replace(/([^<]*) <span.*/, '$1')
+      // console.log(word)
+      example.innerHTML = example.innerHTML.replace(/~/, word)
+    }
   }
-
   // EID
   var entries = document.getElementsByClassName("eid entry")
   for (let entry of entries) {
-    var currentEntry = entry.innerHTML
-    currentEntry = currentEntry.replace(/(<span class="eid sense unclickable">)/g, '<br><br> $1')
-    currentEntry = currentEntry.replace(/(<span class="eid subsense unclickable")/g, '<br> $1 style="margin-left: 20px"')
-    currentEntry = currentEntry.replace(/(<span class="eid src clickable")/g, '<br> $1 style="margin-left:40px"')
-    entry.innerHTML = currentEntry
+    var senses = entry.getElementsByClassName("eid sense unclickable")
+    for (let sense of senses) { 
+      breakline = document.createElement("br")
+      entry.insertBefore(breakline, sense)
+    }
+
+    var subsenses = entry.getElementsByClassName("eid subsense unclickable")
+    for (let subsense of subsenses) {
+      breakline = document.createElement("br")
+      entry.insertBefore(breakline, subsense)
+      subsense.style.marginLeft = "20px"
+    }   
+    var examples = entry.getElementsByClassName("eid example clickable")
+    for (let example of examples ) {
+      breakline = document.createElement("br")
+      entry.insertBefore(breakline, example)
+      example.style.marginLeft = "40px"
+    }
   }
+
+  // AFB
+  var entries = document.getElementsByClassName("fb entry")
+  for (let entry of entries) {
+    if (entry.getElementsByClassName("fb pos").length > 0) {
+      entry.getElementsByClassName("fb pos")[0].appendChild(document.createElement("br"))
+    } else {
+      entry.getElementsByClassName("fb headword clickable")[0].appendChild(document.createElement("br"))
+    }
+
+    var subentries = entry.getElementsByClassName("fb subentry")
+    for (let subentry of subentries) {
+      entry.insertBefore(document.createElement("br"), subentry)
+    }
+
+    var examples = entry.getElementsByClassName("fb example clickable")
+    for (let example of examples) {
+      if (example.nextElementSibling == null) { // Check if last child
+        if (example.parentElement.parentElement.nextElementSibling) { // Check if its parent's parent has a sibling
+          if (example.parentElement.parentElement.nextElementSibling.tagName != "BR") { // Is there already a line break
+            example.appendChild(document.createElement("br"))
+         }
+       }
+        
+      } else {
+        example.appendChild(document.createElement("br"))
+      }
+    }
+  }
+
 });
 
 
