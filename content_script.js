@@ -8,6 +8,9 @@ async function fetchVariants() {
   return variants;
 }
 
+const prepositions = ["i", "in", "le", "do", "de", "ar", "faoi"]
+const mutating = ["i", "le",]
+
 fetchVariants().then(variants => {
 
   var topArea = document.getElementsByClassName("dir obverse exacts")[0]
@@ -19,6 +22,16 @@ fetchVariants().then(variants => {
   } else {
     word = document.getElementsByClassName("fb headword clickable")[0].textContent.trim()
   }
+  if (prepositions.indexOf(word.split(' ')[-1]) > -1) {
+    word = word.split(' ')[0]
+  }
+
+  if (mutating.indexOf(word.split(' ')[0]) > -1) {
+    var mutated = word.split(' ').slice(1, (word.split(' ').length)).join(" ")
+    word = mutated.slice(1, (mutated.length - 1))
+
+    
+
   // Special Exceptions:
   if (word == "i gceann" || word == "ar ceann" || word == "de cheann" || word == "go ceann" || word == "um cheann") {
     word = "ceann"
