@@ -22,14 +22,15 @@ fetchVariants().then(variants => {
   } else {
     word = document.getElementsByClassName("fb headword clickable")[0].textContent.trim()
   }
-  if (prepositions.indexOf(word.split(' ')[-1]) > -1) {
+  let last_word = word.split(' ')[word.split(' ').length - 1] 
+  if (prepositions.indexOf(last_word) > -1) {
     word = word.split(' ')[0]
-  }
+  } 
 
   if (mutating.indexOf(word.split(' ')[0]) > -1) {
     var mutated = word.split(' ').slice(1, (word.split(' ').length)).join(" ")
     word = mutated.slice(1, (mutated.length - 1))
-
+}
     
 
   // Special Exceptions:
@@ -53,8 +54,6 @@ fetchVariants().then(variants => {
     } else {
       key = word
     }
-    console.log(key)
-    console.log(variants[key])
     if (variants[key.toLowerCase()]) {
       var list = variants[key.toLowerCase()]
       list_string = list.join(", ");
@@ -67,13 +66,17 @@ fetchVariants().then(variants => {
 
   var bolds = topArea.getElementsByClassName("fgb b clickable")
   for (let bold of bolds) {
-    var currentBold = bold.innerHTML
-    currentBold = currentBold.replace(/(<span>[^ |1-9])/, '<span> • </span> $1')
-    currentBold = currentBold.replace(/([\d]*\. )/, '<br> $1')
-    currentBold = currentBold.replace(/~/g, word) 
+    var textContent = bold.textContent
+    textContent = textContent.replace(/[A-Z]~/g, word[0].toUpperCase() + word.substring(1));
+    textContent = textContent.replace(/~/g, word) 
+    bold.textContent = textContent
 
+    var currentBold = bold.innerHTML
+    //currentBold = currentBold.replace(/(<span>[^ |1-9])/, '<span> • </span> $1')
+    currentBold = currentBold.replace(/([\d]*\. )/, '<br> $1')
     bold.innerHTML = currentBold
   }
+
   var regulars = topArea.getElementsByClassName("fgb r clickable")
   for (let regular of regulars) {
     var currentRegular = regular.innerHTML
@@ -84,7 +87,8 @@ fetchVariants().then(variants => {
   var italics = topArea.getElementsByClassName("fgb i clickable")
   for (let italic of italics) {
     var currentItalic = italic.innerHTML
-    currentItalic = currentItalic.replace(/(<span.*>[A-Z|Á|É|Í|Ó|Ú|~])/, '<span style="bold"> • </span> $1')
+    //currentItalic = currentItalic.replace(/(<span.*>[A-Z|Á|É|Í|Ó|Ú|~])/, '<span style="bold"> • </span> $1')
+    currentItalic = currentItalic.replace(/[A-Z]~/, word[0].toUpperCase() + word.substring(1));
     currentItalic = currentItalic.replace("~", word)
     italic.innerHTML = currentItalic
   }
@@ -95,7 +99,6 @@ fetchVariants().then(variants => {
     var examples = bottomArea.getElementsByClassName("ex")
     for (let example of examples) {
       word = example.getElementsByTagName("a")[0].innerHTML.replace(/([^<]*) <span.*/, '$1')
-      // console.log(word)
       example.innerHTML = example.innerHTML.replace(/~/, word)
     }
   }
@@ -152,7 +155,3 @@ fetchVariants().then(variants => {
   }
 
 });
-
-
-
-
