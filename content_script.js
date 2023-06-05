@@ -8,11 +8,48 @@ async function fetchVariants() {
   return variants;
 }
 
-const prepositions = ["i", "in", "le", "do", "de", "ar", "faoi"]
-const mutating = ["i", "le",]
+function uneclipse(string) {
+  if ( ['mb', 'gc', 'nd', 'n-', 'ng', 'bp', 'dt'].includes(string.slice(0, 2)) ) {
+    return string.slice(1);
+  }
+  if (string.slice(0, 3) == 'bhf') {
+    return string.slice(2);
+  }
+  
+  return string;
+}
+
+function delenite(string) {
+  if (string[1] == 'h') {
+    return string[0] + string.slice(2);
+  }
+
+  return string;
+}
+
+function removeH(string) {
+  if (string[0] == 'h') {
+    return string.slice(1);
+  }
+
+  return string;
+}
+
+console.log('bhfuil'.slice(0, 2));
+console.log(uneclipse('mbord'));
+console.log(uneclipse('bhfuil'));
+console.log(uneclipse('léim'));
+
+console.log(delenite('bhord'));
+console.log(delenite('bord'));
+console.log(delenite('úll'));
+
+const PREPOSITIONS = ["i", "in", "le", "do", "de", "ar", "faoi", 'um', 'go'];
+const ECLIPSING = ['i'];
+const LENITING = ['ar', 'do', 'de', 'ar', 'faoi', 'um'];
+const H_PREFIXING = ['le'];
 
 fetchVariants().then(variants => {
-
   var topArea = document.getElementsByClassName("dir obverse exacts")[0]
   var word = ""
   if (document.getElementsByClassName("eid current").length > 0) {
@@ -22,25 +59,39 @@ fetchVariants().then(variants => {
   } else {
     word = document.getElementsByClassName("fb headword clickable")[0].textContent.trim()
   }
+  let shouldReplaceWord = true;
+  let split = word.split(' ');
+
+  /*
   let last_word = word.split(' ')[word.split(' ').length - 1] 
   if (prepositions.indexOf(last_word) > -1) {
     word = word.split(' ')[0]
   } 
+  
 
   if (mutating.indexOf(word.split(' ')[0]) > -1) {
     var mutated = word.split(' ').slice(1, (word.split(' ').length)).join(" ")
     word = mutated.slice(1, (mutated.length - 1))
-}
+  }*/
     
 
   // Special Exceptions:
-  if (word == "i gceann" || word == "ar ceann" || word == "de cheann" || word == "go ceann" || word == "um cheann") {
-    word = "ceann"
-  } else if (word == "le haghaidh" || word == "in aghaidh" || word == "ar aghaidh") {
-    word = "aghaidh"
-  } else if (word == "in airde") {
-    word = "airde"
-  } 
+  if (split.length > 1) {
+    if ( ECLIPSING.includes(split[0]) ) {
+      word = uneclipse(split[1]);
+    }else if ( H_PREFIXING.includes(split[0]) ) {
+      word = removeH(split[1]);
+    } else if ( LENITING.includes(split[0]) ) {
+      word = delenite(split[1]);
+    } else if ( PREPOSITIONS.includes(split[0]) ) {
+      word = split[1];
+    } else if ( !PREPOSITIONS.includes(split[0]) ) {
+      word = split[0]
+    } else {
+      shouldReplaceWord = false;
+    }
+  }
+  
 
 
   // FGB
@@ -67,12 +118,13 @@ fetchVariants().then(variants => {
   var bolds = topArea.getElementsByClassName("fgb b clickable")
   for (let bold of bolds) {
     var textContent = bold.textContent
-    textContent = textContent.replace(/[A-Z]~/g, word[0].toUpperCase() + word.substring(1));
-    textContent = textContent.replace(/~/g, word) 
+    if (shouldReplaceWord) {
+      textContent = textContent.replace(/[A-Z]~/g, word[0].toUpperCase() + word.substring(1));
+      textContent = textContent.replace(/~/g, word) 
+    }
     bold.textContent = textContent
 
     var currentBold = bold.innerHTML
-    //currentBold = currentBold.replace(/(<span>[^ |1-9])/, '<span> • </span> $1')
     currentBold = currentBold.replace(/([\d]*\. )/, '<br> $1')
     bold.innerHTML = currentBold
   }
@@ -87,9 +139,10 @@ fetchVariants().then(variants => {
   var italics = topArea.getElementsByClassName("fgb i clickable")
   for (let italic of italics) {
     var currentItalic = italic.innerHTML
-    //currentItalic = currentItalic.replace(/(<span.*>[A-Z|Á|É|Í|Ó|Ú|~])/, '<span style="bold"> • </span> $1')
-    currentItalic = currentItalic.replace(/[A-Z]~/, word[0].toUpperCase() + word.substring(1));
-    currentItalic = currentItalic.replace("~", word)
+    if (shouldReplaceWord) {
+      currentItalic = currentItalic.replace(/[A-Z]~/, word[0].toUpperCase() + word.substring(1));
+      currentItalic = currentItalic.replace("~", word)
+    }
     italic.innerHTML = currentItalic
   }
 
