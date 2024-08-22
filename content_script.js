@@ -35,15 +35,6 @@ function removeH(string) {
   return string;
 }
 
-console.log('bhfuil'.slice(0, 2));
-console.log(uneclipse('mbord'));
-console.log(uneclipse('bhfuil'));
-console.log(uneclipse('léim'));
-
-console.log(delenite('bhord'));
-console.log(delenite('bord'));
-console.log(delenite('úll'));
-
 const PREPOSITIONS = ["i", "in", "le", "do", "de", "ar", "faoi", 'um', 'go'];
 const ECLIPSING = ['i'];
 const LENITING = ['ar', 'do', 'de', 'ar', 'faoi', 'um'];
@@ -74,6 +65,7 @@ fetchVariants().then(variants => {
     word = mutated.slice(1, (mutated.length - 1))
   }*/
     
+  // FGB
 
   // Special Exceptions:
   if (split.length > 1) {
@@ -88,13 +80,9 @@ fetchVariants().then(variants => {
     } else if ( !PREPOSITIONS.includes(split[0]) ) {
       word = split[0]
     } else {
-      shouldReplaceWord = false;
+      shouldReplaceWord = false; // Don't replace the tildes if something has gone wrong
     }
   }
-  
-
-
-  // FGB
 
   /// Variants
   var entries = topArea.getElementsByClassName("fgb entry")
