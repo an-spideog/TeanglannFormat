@@ -113,14 +113,14 @@ fetchVariants().then(variants => {
     bold.textContent = textContent
 
     var currentBold = bold.innerHTML
-    currentBold = currentBold.replace(/([\d]*\. )/, '<br> $1')
+    //currentBold = currentBold.replace(/([\d]*\. )/, '<br> $1')
     bold.innerHTML = currentBold
   }
 
   var regulars = topArea.getElementsByClassName("fgb r clickable")
   for (let regular of regulars) {
     var currentRegular = regular.innerHTML
-    currentRegular = currentRegular.replace(/>[\.|?] *<\/span>/, '>. <br> </span>')
+    currentRegular = currentRegular.replace(<\/span>/, '<br> </span>')
     regular.innerHTML = currentRegular
   }
 

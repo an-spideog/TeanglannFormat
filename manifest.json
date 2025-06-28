@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "TeanglannFormat",
   "description": "Formats teanglann.ie",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "icons": {
     "64": "icons/tf_logo64.png"
   },
@@ -18,5 +18,11 @@
   ],
   "web_accessible_resources": [
     "variants.json"
-  ]
+  ],
+"browser_specific_settings": {
+  "gecko_android": {
+    "strict_min_version": "42.0"
+  }
+}
+
 }
