@@ -35,6 +35,14 @@ function removeH(string) {
   return string;
 }
 
+function insertLineBreakAfter(node) {
+  node.appendChild(document.createElement("br"))
+}
+
+function insertLineBreakBefore(node) {
+  node.parentNode.insertBefore(document.createElement("br"), node)
+}
+
 const PREPOSITIONS = ["i", "in", "le", "do", "de", "ar", "faoi", 'um', 'go'];
 const ECLIPSING = ['i'];
 const LENITING = ['ar', 'do', 'de', 'ar', 'faoi', 'um'];
@@ -50,43 +58,31 @@ fetchVariants().then(variants => {
   } else {
     word = document.getElementsByClassName("fb headword clickable")[0].textContent.trim()
   }
-  let shouldReplaceWord = true;
-  let split = word.split(' ');
 
-  /*
-  let last_word = word.split(' ')[word.split(' ').length - 1] 
-  if (prepositions.indexOf(last_word) > -1) {
-    word = word.split(' ')[0]
-  } 
-  
-
-  if (mutating.indexOf(word.split(' ')[0]) > -1) {
-    var mutated = word.split(' ').slice(1, (word.split(' ').length)).join(" ")
-    word = mutated.slice(1, (mutated.length - 1))
-  }*/
-    
-  // FGB
-
-  // Special Exceptions:
-  if (split.length > 1) {
-    if ( ECLIPSING.includes(split[0]) ) {
-      word = uneclipse(split[1]);
-    }else if ( H_PREFIXING.includes(split[0]) ) {
-      word = removeH(split[1]);
-    } else if ( LENITING.includes(split[0]) ) {
-      word = delenite(split[1]);
-    } else if ( PREPOSITIONS.includes(split[0]) ) {
-      word = split[1];
-    } else if ( !PREPOSITIONS.includes(split[0]) ) {
-      word = split[0]
-    } else {
-      shouldReplaceWord = false; // Don't replace the tildes if something has gone wrong
-    }
-  }
-
-  /// Variants
   var entries = topArea.getElementsByClassName("fgb entry")
   for (let entry of entries) {
+    word = entry.getElementsByClassName("fgb title")[0].textContent.trim().replace(/(.*),/g, '$1')
+    let shouldReplaceWord = true;
+    let split = word.split(' ');
+      
+    // FGB -----
+
+    // Special Exceptions:
+    if (split.length > 1) {
+      if ( ECLIPSING.includes(split[0]) ) {
+        word = uneclipse(split[1]);
+      } else if ( H_PREFIXING.includes(split[0]) ) {
+        word = removeH(split[1]);
+      } else if ( LENITING.includes(split[0]) ) {
+        word = delenite(split[1]);
+      } else if ( PREPOSITIONS.includes(split[0]) ) {
+        word = split[1];
+      } else if ( !PREPOSITIONS.includes(split[0]) ) {
+        word = split[0]
+      } else {
+        shouldReplaceWord = false; // Don't replace the tildes if something has gone wrong
+      }
+    }
     if (entry.getElementsByClassName("fgb title")[0].nextElementSibling.className == "fgb x") {
       number = entry.getElementsByClassName("fgb x")[0].textContent
       key = word + number
@@ -96,15 +92,12 @@ fetchVariants().then(variants => {
     if (variants[key.toLowerCase()]) {
       var list = variants[key.toLowerCase()]
       list_string = list.join(", ");
-      entry.appendChild(document.createElement("br"))
+      insertLineBreakAfter(entry)
       entry.appendChild(document.createTextNode("Possible variants: " + list_string))
     }
-  
-  }
 
-
-  var bolds = topArea.getElementsByClassName("fgb b clickable")
-  for (let bold of bolds) {
+    var bolds = entry.getElementsByClassName("fgb b clickable")
+    for (let bold of bolds) {
     var textContent = bold.textContent
     if (shouldReplaceWord) {
       textContent = textContent.replace(/[A-Z]~/g, word[0].toUpperCase() + word.substring(1));
@@ -112,26 +105,43 @@ fetchVariants().then(variants => {
     }
     bold.textContent = textContent
 
-    var currentBold = bold.innerHTML
-    //currentBold = currentBold.replace(/([\d]*\. )/, '<br> $1')
-    bold.innerHTML = currentBold
+    // Numbered definition groups are split with a line break
+    var startsWithDigit = textContent[0].match(/\d/)
+    if (startsWithDigit) {
+      insertLineBreakBefore(bold)
+    }
   }
 
-  var regulars = topArea.getElementsByClassName("fgb r clickable")
+  var regulars = entry.getElementsByClassName("fgb r clickable")
   for (let regular of regulars) {
-    var currentRegular = regular.innerHTML
-    currentRegular = currentRegular.replace(<\/span>/, '<br> </span>')
-    regular.innerHTML = currentRegular
+    if (regular.innerText.length > 1 && regular.innerText.match(/.*[\.!?]/)) {
+         insertLineBreakAfter(regular)
+    }
   }
 
-  var italics = topArea.getElementsByClassName("fgb i clickable")
+  var italics = entry.getElementsByClassName("fgb i clickable")
   for (let italic of italics) {
     var currentItalic = italic.innerHTML
     if (shouldReplaceWord) {
       currentItalic = currentItalic.replace(/[A-Z]~/, word[0].toUpperCase() + word.substring(1));
       currentItalic = currentItalic.replace("~", word)
     }
+   
     italic.innerHTML = currentItalic
+  }
+
+  var letters = entry.getElementsByClassName("fgb l")
+  for (let letter of letters) {
+    if (letter.innerText === "a") {
+      var paren = letter.previousSibling
+          if (paren.nodeValue == "(") {
+         if (paren.previousSibling.lastChild && paren.previousSibling.lastChild.nodeName !== "BR") {
+          insertLineBreakBefore(paren)
+          }
+      }
+    }
+  }
+    
   }
 
   /// Phrases in FGB
@@ -143,7 +153,8 @@ fetchVariants().then(variants => {
       example.innerHTML = example.innerHTML.replace(/~/, word)
     }
   }
-  // EID
+
+  // EID ----
   var entries = document.getElementsByClassName("eid entry")
   for (let entry of entries) {
     var senses = entry.getElementsByClassName("eid sense unclickable")
@@ -166,7 +177,7 @@ fetchVariants().then(variants => {
     }
   }
 
-  // AFB
+  // AFB ----
   var entries = document.getElementsByClassName("fb entry")
   for (let entry of entries) {
     if (entry.getElementsByClassName("fb pos").length > 0) {
