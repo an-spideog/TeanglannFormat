@@ -121,13 +121,13 @@ fetchVariants().then(variants => {
 
   var italics = entry.getElementsByClassName("fgb i clickable")
   for (let italic of italics) {
-    var currentItalic = italic.innerHTML
+    var textContent = italic.textContent
     if (shouldReplaceWord) {
-      currentItalic = currentItalic.replace(/[A-Z]~/, word[0].toUpperCase() + word.substring(1));
-      currentItalic = currentItalic.replace("~", word)
+      textContent = textContent.replace(/[A-Z]~/, word[0].toUpperCase() + word.substring(1));
+      textContent = textContent.replace("~", word)
     }
    
-    italic.innerHTML = currentItalic
+    italic.textContent = textContent
   }
 
   var letters = entry.getElementsByClassName("fgb l")
